@@ -717,6 +717,19 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                     alertNotice.fadeIn('slow');
                 }
             });
+            
+            if (typeof jsObject !== 'undefined' && window.DtWebComponents && window.DtWebComponents.ComponentService) {
+                const service = new window.DtWebComponents.ComponentService(
+                    jsObject.parts.post_type,
+                    jsObject.parts.post_id,
+                    jsObject.nonce,
+                    jsObject.root,
+                );
+                service.attachFileUploadEvents();
+                service.attachGeocodeEvents();
+                window.componentService = service;
+            }
+
         </script>
         <?php
         return true;
@@ -850,8 +863,8 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
 
                                 if ( function_exists( 'render_field_for_display' ) ) {
                                     render_field_for_display( 'name', $this->post_field_settings, $this->post );
-                                } else if ( class_exists( 'Disciple_Tools_Magic_Links_Helper' ) ) {
-                                    Disciple_Tools_Magic_Links_Helper::render_field_for_display( 'name', $this->post_field_settings, $this->post );
+                                } else {
+                                    echo '<p>Error: Field rendering function not found</p>';
                                 }
                                 ?>
                             </div>

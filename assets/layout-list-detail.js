@@ -63,6 +63,11 @@ function loadPostDetail(id) {
   if (listItem) {
     listItem.classList.add('active');
   }
+
+  if (window.componentService) {
+    window.componentService.attachGeocodeEvents();
+    window.componentService.attachFileUploadEvents();
+  }
 }
 
 /**
@@ -206,13 +211,23 @@ function saveItem(event) {
       return;
     }
     const field_id = el.name;
-    const type = el.dataset.type;
+    const templateField = jsObject.template.fields.find(f => f.id === field_id);
+    const isCustom = templateField && templateField.type === 'custom';
 
-    const value = DtWebComponents.ComponentService.convertValue(el.localName, el.value);
-    const fieldType = type === 'custom' ? 'custom' : 'dt';
-    payload['fields'][fieldType].push({
+    let type = isCustom ? 'custom' : '';
+    if (!isCustom && jsObject.fieldSettings && jsObject.fieldSettings[field_id]) {
+        type = jsObject.fieldSettings[field_id].type; 
+    }
+
+    let value = DtWebComponents.ComponentService.convertValue(el.localName, el.value);
+    if (type === 'location_meta' && value && value.values) {
+        value = value.values;
+    }
+
+    const fieldCategory = type === 'custom' ? 'custom' : 'dt';
+    payload['fields'][fieldCategory].push({
       id: field_id,
-      type,
+      type: type, // The PHP switch statement will finally see this!
       value: value,
     });
   });

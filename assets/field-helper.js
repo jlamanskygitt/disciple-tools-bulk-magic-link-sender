@@ -348,13 +348,27 @@ function ensureSharedFunctionsMethods() {
                         break;
                     }
                     case 'location_meta': {
-                        payloadFields.dt.push({
-                            id: field_id,
-                            dt_type: field_type,
-                            template_type: field_template_type,
-                            value: (window.selected_location_grid_meta !== undefined) ? window.selected_location_grid_meta : '',
-                            deletions: field_meta.val() ? JSON.parse(field_meta.val()) : []
-                        });
+                        const dtLocationMetaComponent = jQuery(tr).find('dt-location-map[id="' + field_id + '"]').get(0);
+                        if (dtLocationMetaComponent) {
+                            const rawValues = dtLocationMetaComponent.value || [];
+                            let formattedValues = {};
+                            formattedValues[field_id] = {
+                                values: rawValues
+                            };
+
+                            let previousValues = (options.post && options.post[field_id]) ? options.post[field_id] : [];
+                            let deletions = previousValues.filter(prev => {
+                                return !rawValues.some(curr => curr.grid_meta_id === prev.grid_meta_id);
+                            }).map(prev => prev.grid_meta_id);
+
+                            payloadFields.dt.push({
+                                id: field_id,
+                                dt_type: field_type,
+                                template_type: field_template_type,
+                                value: formattedValues,
+                                deletions: deletions,
+                            });
+                        }
                         break;
                     }
                     default:

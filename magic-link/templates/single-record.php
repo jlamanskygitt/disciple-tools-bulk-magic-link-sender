@@ -153,10 +153,6 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
 
         wp_enqueue_style( 'single-record-css', $plugin_dir_url . 'assets/single-record.css', null, filemtime( $plugin_dir_path . 'assets/single-record.css' ) );
 
-        wp_enqueue_style( 'dt-web-components-css', "https://cdn.jsdelivr.net/npm/@disciple.tools/web-components@$dtwc_version/src/styles/light.css", [], $dtwc_version );
-
-        wp_enqueue_script( 'dt-web-components-js', "https://cdn.jsdelivr.net/npm/@disciple.tools/web-components@$dtwc_version/dist/index.js", $dtwc_version );
-
         Disciple_Tools_Bulk_Magic_Link_Sender_API::enqueue_magic_link_utilities_script();
     }
 
@@ -169,6 +165,7 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
         $allowed_js[] = 'single-record';
         $allowed_js[] = 'dt-web-components-js';
         $allowed_js[] = 'field-helper';
+        $allowed_js[] = 'web-components';
         $allowed_js[] = Disciple_Tools_Bulk_Magic_Link_Sender_API::get_magic_link_utilities_script_handle();
 
         return $allowed_js;
@@ -180,6 +177,7 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
         $allowed_css[] = 'material-font-icons-css';
         $allowed_css[] = 'single-record-css';
         $allowed_css[] = 'dt-web-components-css';
+        $allowed_css[] = 'web-components-css';
 
         return $allowed_css;
     }
@@ -780,7 +778,18 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                     }
                 }
             });
-
+            
+            if (typeof jsObject !== 'undefined' && window.DtWebComponents && window.DtWebComponents.ComponentService) {
+                const service = new window.DtWebComponents.ComponentService(
+                    jsObject.post.post_type,
+                    jsObject.post.ID,
+                    window.wpApiShare.nonce,
+                    window.wpApiShare.root,
+                );
+                service.attachFileUploadEvents();
+                service.attachGeocodeEvents();
+                window.componentService = service;
+            }
         </script>
         <?php
         return true;

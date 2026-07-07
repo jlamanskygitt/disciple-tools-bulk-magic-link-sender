@@ -227,7 +227,7 @@ function saveItem(event) {
     const fieldCategory = type === 'custom' ? 'custom' : 'dt';
     payload['fields'][fieldCategory].push({
       id: field_id,
-      type: type, // The PHP switch statement will finally see this!
+      type: type,
       value: value,
     });
   });

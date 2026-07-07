@@ -358,7 +358,6 @@ class Disciple_Tools_Magic_Links_Layout_List_Detail {
                         'post_type' => $this->template['record_type']
                     ];
 
-                    // Check if function exists
                     if ( function_exists( 'render_field_for_display' ) ) {
                         render_field_for_display( $field['id'], $post_field_settings, $empty_post, null, null, null, [] );
                     } else {

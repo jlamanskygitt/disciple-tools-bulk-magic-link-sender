@@ -717,7 +717,7 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                     alertNotice.fadeIn('slow');
                 }
             });
-            
+
             if (typeof jsObject !== 'undefined' && window.DtWebComponents && window.DtWebComponents.ComponentService) {
                 const service = new window.DtWebComponents.ComponentService(
                     jsObject.parts.post_type,

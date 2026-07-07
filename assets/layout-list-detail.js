@@ -64,6 +64,9 @@ function loadPostDetail(id) {
     listItem.classList.add('active');
   }
 
+  window.componentService.postId = id;
+  window.componentService.postType = jsObject.template.record_type;
+
   if (window.componentService) {
     window.componentService.attachGeocodeEvents();
     window.componentService.attachFileUploadEvents();
@@ -216,7 +219,12 @@ function saveItem(event) {
 
     let type = isCustom ? 'custom' : '';
     if (!isCustom && jsObject.fieldSettings && jsObject.fieldSettings[field_id]) {
-        type = jsObject.fieldSettings[field_id].type; 
+        type = jsObject.fieldSettings[field_id].type;
+    }
+
+    if (!type) {
+        console.warn(`Skipping saving field '${field_id}'. No valid type was found in jsObject.fieldSettings.`);
+        return;
     }
 
     let value = DtWebComponents.ComponentService.convertValue(el.localName, el.value);

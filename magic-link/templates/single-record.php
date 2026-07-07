@@ -142,8 +142,6 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
         $plugin_dir_path = Disciple_Tools_Bulk_Magic_Link_Sender::dir_path();
         $plugin_dir_url  = Disciple_Tools_Bulk_Magic_Link_Sender::dir_uri();
 
-        $dtwc_version = '0.8.0';
-
         wp_enqueue_script( 'jquery-typeahead', get_template_directory_uri() . $path_js, [ 'jquery' ], filemtime( get_template_directory() . $path_js ) );
         wp_enqueue_style( 'jquery-typeahead-css', get_template_directory_uri() . $path_css, [], filemtime( get_template_directory() . $path_css ) );
         wp_enqueue_style( 'material-font-icons-css', 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css', [], '7.4.47' );
@@ -163,7 +161,6 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
         $allowed_js[] = 'google-search-widget';
         $allowed_js[] = 'jquery-typeahead';
         $allowed_js[] = 'single-record';
-        $allowed_js[] = 'dt-web-components-js';
         $allowed_js[] = 'field-helper';
         $allowed_js[] = 'web-components';
         $allowed_js[] = Disciple_Tools_Bulk_Magic_Link_Sender_API::get_magic_link_utilities_script_handle();
@@ -176,7 +173,6 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
         $allowed_css[] = 'jquery-typeahead-css';
         $allowed_css[] = 'material-font-icons-css';
         $allowed_css[] = 'single-record-css';
-        $allowed_css[] = 'dt-web-components-css';
         $allowed_css[] = 'web-components-css';
 
         return $allowed_css;
@@ -778,13 +774,13 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                     }
                 }
             });
-            
+
             if (typeof jsObject !== 'undefined' && window.DtWebComponents && window.DtWebComponents.ComponentService) {
                 const service = new window.DtWebComponents.ComponentService(
                     jsObject.post.post_type,
                     jsObject.post.ID,
-                    window.wpApiShare.nonce,
-                    window.wpApiShare.root,
+                    jsObject.nonce,
+                    jsObject.root,
                 );
                 service.attachFileUploadEvents();
                 service.attachGeocodeEvents();

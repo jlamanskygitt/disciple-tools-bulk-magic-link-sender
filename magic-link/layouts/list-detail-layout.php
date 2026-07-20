@@ -172,6 +172,21 @@ class Disciple_Tools_Magic_Links_Layout_List_Detail {
                 window.componentService = service;
             }
 
+            document.addEventListener('dt:get-data', function(e) {
+                if (!e.target || !e.detail) return;
+
+                const tagName = e.target.tagName;
+                const onSuccess = e.detail.onSuccess;
+                const onError = e.detail.onError;
+
+                if (tagName === 'DT-TAGS') {
+                    if (onSuccess){
+                        onSuccess([]);
+                    }
+                    return;
+                }
+            });
+
             const listItems = new Map(jsObject.items.posts.map((obj) => [obj.ID.toString(), obj]));
 
             // initialize the list of items

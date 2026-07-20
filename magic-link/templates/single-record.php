@@ -535,6 +535,13 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                         }
                     });
                 }
+                if (e.target && e.target.tagName === 'DT-TAGS' && e.detail) {
+                    const onSuccess = e.detail.onSuccess;
+                    if (onSuccess){
+                        onSuccess([]);
+                    }
+                    return;
+                }
             });
 
             /**
@@ -1268,27 +1275,37 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                         if ( is_string( $field['value'] ) ) {
                             // Simple URL string
                             $updates[$field['id']] = sanitize_text_field( $field['value'] );
-                        } elseif ( is_array( $field['value'] ) && isset( $field['value']['values'] ) ) {
+                        } elseif ( is_array( $field['value'] ) ) {
                             // DT format with values array
                             $links = [];
-                            foreach ( $field['value']['values'] as $link ) {
+                            foreach ( $field['value'] as $link ) {
                                 if ( !empty( $link['value'] ) ) {
-                                    $links[] = [
-                                        'value' => sanitize_text_field( $link['value'] ),
-                                        'type' => sanitize_text_field( $link['type'] ?? '' ),
-                                        'meta_id' => $link['meta_id'] ?? null,
-                                        'delete' => $link['delete'] ?? false
-                                    ];
+                                    if ( $link['delete'] ) {
+                                        $links[] = [
+                                            'value' => sanitize_text_field( $link['value'] ),
+                                            'type' => sanitize_text_field( $link['type'] ?? '' ),
+                                            'verified' => false,
+                                            'meta_id' => $link['key'] ?? $link['meta_id'] ?? null,
+                                            'delete' => $link['delete'] ?? false,
+                                        ];
+                                    } else {
+                                        $links[] = [
+                                            'value' => sanitize_text_field( $link['value'] ),
+                                            'type' => sanitize_text_field( $link['type'] ?? '' ),
+                                            'verified' => false,
+                                        ];
+                                    }
                                 } else if ( !empty( $link['delete'] ) ) {
                                     $links[] = [
-                                        'meta_id' => $link['meta_id'],
+                                        'meta_id' => $link['key'] ?? $link['meta_id'] ?? null,
                                         'delete' => true
                                     ];
                                 }
                             }
                             if ( !empty( $links ) ) {
                                 $updates[$field['id']] = [
-                                    'values' => $links
+                                    'values' => $links,
+                                    'force_values' => true
                                 ];
                             }
                         }

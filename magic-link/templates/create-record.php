@@ -454,20 +454,10 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                                 case 'text':
                                 case 'number':
                                 case 'textarea':
-                                    // For dt-text, value is a simple string
-                                    if (rawValue && rawValue.trim() !== '') {
-                                        payload['fields']['dt'].push({
-                                            id: field_id,
-                                            dt_type: field_type,
-                                            template_type: field_template_type,
-                                            value: rawValue.trim()
-                                        });
-                                    }
-                                    break;
-
                                 case 'key_select':
-                                    // For dt-single-select, value is the selected key
-                                    if (rawValue && rawValue.trim() !== '') {
+                                case 'date':
+                                // For the above feilds, value is a simple string. For dt-date, value is already in 'yyyy-mm-dd' format
+                                    if (typeof rawValue === 'string' && rawValue.trim() !== '') {
                                         payload['fields']['dt'].push({
                                             id: field_id,
                                             dt_type: field_type,
@@ -504,16 +494,20 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                                     }
                                     break;
 
+                                case 'tags':
                                 case 'multi_select':
-                                    // For dt-multi-select, value is JSON array of selected keys
+                                    // For dt-tags & dt-multi-select, value is JSON array of selected keys or values
                                     try {
-                                        let parsedValues = JSON.parse(rawValue);
-                                        if (Array.isArray(parsedValues) && parsedValues.length > 0) {
+                                        let parsedOptions = typeof rawValue === 'string' ? JSON.parse(rawValue || '[]') : rawValue;
+                                        
+                                        if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
                                             let options = [];
-                                            parsedValues.forEach(function(selectedKey) {
-                                                if (selectedKey && selectedKey.trim() !== '') {
+                                            parsedOptions.forEach(function(item) {
+                                                let val = (typeof item === 'object' && item !== null) ? item.value : item;
+                                                
+                                                if (val && typeof val === 'string' && val.trim() !== '') {
                                                     options.push({
-                                                        'value': selectedKey.trim(),
+                                                        'value': val.trim(),
                                                         'delete': false
                                                     });
                                                 }
@@ -527,46 +521,64 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                                                 });
                                             }
                                         }
-                                    } catch (e) {
-                                        // Silently handle parsing errors
-                                    }
+                                    } catch (e) {}
+                                    break;
+                                    
+                                case 'boolean':
+                                    // For boolean, value is a simple true/false
+                                    payload['fields']['dt'].push({
+                                        id: field_id,
+                                        dt_type: field_type,
+                                        template_type: field_template_type,
+                                        value: rawValue
+                                    });
                                     break;
 
-                                case 'date':
-                                    // For dt-date, value is already in 'yyyy-mm-dd' format
-                                    if (rawValue && rawValue.trim() !== '') {
-                                        payload['fields']['dt'].push({
-                                            id: field_id,
-                                            dt_type: field_type,
-                                            template_type: field_template_type,
-                                            value: rawValue.trim()
-                                        });
-                                    }
-                                    break;
-
-                                case 'number':
-                                    // For dt-number, value should be a numeric value
-                                    if (rawValue && rawValue.trim() !== '') {
-                                        let numericValue = parseFloat(rawValue.trim());
-                                        if (!isNaN(numericValue)) {
+                                case 'location':
+                                case 'location_meta':
+                                    try {
+                                        let parsedLocs = typeof rawValue === 'string' ? JSON.parse(rawValue || '[]') : rawValue;
+                                        if (Array.isArray(parsedLocs) && parsedLocs.length > 0) {
                                             payload['fields']['dt'].push({
                                                 id: field_id,
                                                 dt_type: field_type,
                                                 template_type: field_template_type,
-                                                value: numericValue
+                                                value: parsedLocs
                                             });
                                         }
-                                    }
+                                    } catch (e) {}
                                     break;
 
                                 case 'link':
-                                    // For link fields, value is a URL string
-                                    if (rawValue && rawValue.trim() !== '') {
+                                    // For link fields, value is JSON array of selected keys with their selected types
+                                    let parsedLinks = typeof rawValue === 'string' ? JSON.parse(rawValue || '[]') : rawValue;
+                                    let linksArr = Array.isArray(parsedLinks) ? parsedLinks : [parsedLinks];
+                                    let formattedLinks = [];
+
+                                    linksArr.forEach(l => {
+                                        if (typeof l === 'string' && l.trim() !== '') {
+                                            formattedLinks.push({ value: l.trim(), type: 'default' });
+                                        } else if (l && l.values && Array.isArray(l.values)) {
+                                            const groupType = l.type || 'default';
+                                            l.values.forEach(sub => {
+                                                if (sub.value) {
+                                                    formattedLinks.push({ value: sub.value, type: groupType });
+                                                }
+                                            });
+                                        } else if (l && (l.value)) {
+                                            formattedLinks.push({
+                                                value: l.value,
+                                                type: l.type || 'default'
+                                            });
+                                        }
+                                    });
+
+                                    if (formattedLinks.length > 0) {
                                         payload['fields']['dt'].push({
                                             id: field_id,
                                             dt_type: field_type,
                                             template_type: field_template_type,
-                                            value: rawValue.trim()
+                                            value: { values: formattedLinks }
                                         });
                                     }
                                     break;
@@ -936,7 +948,13 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                         $value = $decoded;
                     }
                 }
-                $updates[$key] = $value;
+                $isEmpty = is_array($value) && (
+                    empty($value) || 
+                    (count($value) === 1 && is_array($value[0] ?? null) && empty($value[0]['value']))
+                );
+                if ( !$isEmpty && $params['fields']['dt'][$key] ) {
+                    $updates[$key] = $value;
+                }
             }
         }
 
@@ -1035,11 +1053,44 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                     }
                     break;
 
+                case 'tags':
+                    if ( !empty( $field['value'] ) ) {
+                        $updates[$field['id']]['values'] = $field['value'];
+                    }
+                    break;
+                
+                case 'boolean':
+                    if ( !empty( $field['value'] ) || $updates[$field['id']] ) {
+                        $updates[$field['id']] = $field['value'];
+                    }
+                    break;
+
+                case 'location_meta':
+                    if ( !empty( $field['value'] ) && is_array( $field['value'] ) ) {
+                        $locations = [];
+                        $iterable = $field['value'];
+                        
+                        foreach ( $iterable as $loc ) {
+                            if ( is_array( $loc ) ) {
+                                $safe_loc = [];
+                                // Sanitize the incoming location object
+                                foreach ( $loc as $k => $v ) {
+                                    $safe_loc[sanitize_key( $k )] = sanitize_text_field( (string) $v );
+                                }
+                                $locations[] = $safe_loc;
+                            }
+                        }
+                        if ( !empty( $locations ) ) {
+                            $updates[$field['id']] = [ 'values' => $locations ];
+                        }
+                    }
+                    break;
                 default:
                     // Handle other field types as needed
                     break;
             }
         }
+        //dt_write_log($updates);
 
         // Handle custom fields by saving them as comments
         $custom_field_comments = [];

@@ -64,10 +64,9 @@ function loadPostDetail(id) {
     listItem.classList.add('active');
   }
 
-  window.componentService.postId = id;
-  window.componentService.postType = jsObject.template.record_type;
-
   if (window.componentService) {
+    window.componentService.postId = id;
+    window.componentService.postType = jsObject.template.record_type;
     window.componentService.attachGeocodeEvents();
     window.componentService.attachFileUploadEvents();
   }
@@ -159,6 +158,11 @@ function setInputValues(parent, post) {
       case 'dt-tile':
         setInputValues(element, post);
         break;
+      case 'dt-toggle':
+        if ( postValue === true ) {
+          element.setAttribute('checked', 'true');
+        }
+        break;
       default:
         if (tagName.startsWith('dt-')) {
           element.value = post[name];
@@ -222,13 +226,8 @@ function saveItem(event) {
         type = jsObject.fieldSettings[field_id].type;
     }
 
-    if (!type) {
-        console.warn(`Skipping saving field '${field_id}'. No valid type was found in jsObject.fieldSettings.`);
-        return;
-    }
-
     let value = DtWebComponents.ComponentService.convertValue(el.localName, el.value);
-    if (type === 'location_meta' && value && value.values) {
+    if ((type === 'location_meta' || type === 'link') && value && value.values) {
         value = value.values;
     }
 

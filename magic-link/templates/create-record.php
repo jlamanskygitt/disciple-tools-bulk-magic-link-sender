@@ -948,11 +948,10 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                         $value = $decoded;
                     }
                 }
-                $isEmpty = is_array($value) && (
-                    empty($value) || 
-                    (count($value) === 1 && is_array($value[0] ?? null) && empty($value[0]['value']))
+                $is_empty = is_array( $value ) && (
+                    empty( $value ) || ( count( $value ) === 1 && is_array( $value[0] ?? null ) && empty( $value[0]['value'] ) )
                 );
-                if ( !$isEmpty && $params['fields']['dt'][$key] ) {
+                if ( !$is_empty && $params['fields']['dt'][$key] ) {
                     $updates[$key] = $value;
                 }
             }
@@ -1058,7 +1057,7 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                         $updates[$field['id']]['values'] = $field['value'];
                     }
                     break;
-                
+
                 case 'boolean':
                     if ( !empty( $field['value'] ) || $updates[$field['id']] ) {
                         $updates[$field['id']] = $field['value'];
@@ -1069,7 +1068,7 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
                     if ( !empty( $field['value'] ) && is_array( $field['value'] ) ) {
                         $locations = [];
                         $iterable = $field['value'];
-                        
+
                         foreach ( $iterable as $loc ) {
                             if ( is_array( $loc ) ) {
                                 $safe_loc = [];

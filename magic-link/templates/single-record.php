@@ -535,13 +535,6 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                         }
                     });
                 }
-                if (e.target && e.target.tagName === 'DT-TAGS' && e.detail) {
-                    const onSuccess = e.detail.onSuccess;
-                    if (onSuccess){
-                        onSuccess([]);
-                    }
-                    return;
-                }
             });
 
             /**
@@ -911,11 +904,14 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                                     switch ( $field['type'] ) {
                                         case 'dt':
 
+                                            $options = [];
+                                            $options['static_options'] = true;
+
                                             // Capture rendered field html
                                             ob_start();
                                             $this->post_field_settings[$field['id']]['custom_display'] = false;
                                             $this->post_field_settings[$field['id']]['readonly'] = !empty( $field['readonly'] );
-                                            render_field_for_display( $field['id'], $this->post_field_settings, $this->post, true );
+                                            render_field_for_display( $field['id'], $this->post_field_settings, $this->post, true, null, null, $options );
                                             $rendered_field_html = ob_get_contents();
                                             ob_end_clean();
 

@@ -1054,7 +1054,7 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
 
                 case 'tags':
                     if ( !empty( $field['value'] ) ) {
-                        $updates[$field['id']]['values'] = $field['value'];
+                        $updates[$field['id']]['values'] = sanitize_text_field( $field['value'] );
                     }
                     break;
 

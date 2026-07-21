@@ -282,11 +282,9 @@ function ensureSharedFunctionsMethods() {
                                 }
                             });
 
-                            // Deduplicate to prevent API errors
                             activeTags = activeTags.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
                             deletedTags = deletedTags.filter((v, i, a) => a.findIndex(t => (t.name === v.name)) === i);
 
-                            // If a tag is currently active, ensure it isn't also marked for deletion
                             deletedTags = deletedTags.filter(d => !activeTags.some(a => a.name === d.name));
 
                             payloadFields.dt.push({
@@ -300,15 +298,9 @@ function ensureSharedFunctionsMethods() {
                         break;
                     }
                     case 'location': {
-                        // Read location values directly from dt-location component
                         const dtLocationComponent = document.getElementById(field_id);
                         if (dtLocationComponent) {
-                            // Get value from component (stored as JSON string in value attribute)
                             let locationValue = dtLocationComponent.value;
-                            if (!locationValue) {
-                                // Try accessing the component's value property directly
-                                locationValue = dtLocationComponent.value;
-                            }
 
                             if (locationValue) {
                                 let locationData = [];
@@ -388,14 +380,6 @@ function ensureSharedFunctionsMethods() {
                                     });
                                 }
                             } catch (e) {}
-                        }
-                        if (values.length === 0) {
-                            jQuery(tr).find('.input-group').each(function () {
-                                values.push({
-                                    'key': jQuery(this).find('button').data('key'),
-                                    'value': jQuery(this).find('input').val()
-                                });
-                            });
                         }
                         payloadFields.dt.push({
                             id: field_id,

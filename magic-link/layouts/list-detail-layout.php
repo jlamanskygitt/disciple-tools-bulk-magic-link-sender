@@ -172,21 +172,6 @@ class Disciple_Tools_Magic_Links_Layout_List_Detail {
                 window.componentService = service;
             }
 
-            document.addEventListener('dt:get-data', function(e) {
-                if (!e.target || !e.detail) return;
-
-                const tagName = e.target.tagName;
-                const onSuccess = e.detail.onSuccess;
-                const onError = e.detail.onError;
-
-                if (tagName === 'DT-TAGS') {
-                    if (onSuccess){
-                        onSuccess([]);
-                    }
-                    return;
-                }
-            });
-
             const listItems = new Map(jsObject.items.posts.map((obj) => [obj.ID.toString(), obj]));
 
             // initialize the list of items
@@ -373,8 +358,11 @@ class Disciple_Tools_Magic_Links_Layout_List_Detail {
                         'post_type' => $this->template['record_type']
                     ];
 
+                    $options = [];
+                    $options['static_options'] = true;
+
                     if ( function_exists( 'render_field_for_display' ) ) {
-                        render_field_for_display( $field['id'], $post_field_settings, $empty_post, null, null, null, [] );
+                        render_field_for_display( $field['id'], $post_field_settings, $empty_post, null, null, null, $options );
                     } else {
                         echo '<p>Error: Field rendering function not found</p>';
                     }

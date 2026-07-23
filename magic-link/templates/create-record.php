@@ -1054,7 +1054,29 @@ class Disciple_Tools_Magic_Links_Template_Create_Record extends DT_Magic_Url_Bas
 
                 case 'tags':
                     if ( !empty( $field['value'] ) ) {
-                        $updates[$field['id']]['values'] = sanitize_text_field( $field['value'] );
+                        $tags = [];
+                        foreach ( $field['value'] as $tag ) {
+                            if ( !empty( $tag['value'] ) ) {
+                                if ( $tag['delete'] ) {
+                                    $tags[] = [
+                                        'value' => sanitize_text_field( $tag['value'] ),
+                                        'delete' => $tag['delete'] ?? false
+                                    ];
+                                } else {
+                                    $tags[] = [
+                                        'value' => sanitize_text_field( $tag['value'] ),
+                                    ];
+                                }
+                            } else if ( !empty( $tag['delete'] ) ) {
+                                $tags[] = [
+                                    'value' => sanitize_text_field( $tag['value'] ),
+                                    'delete' => true
+                                ];
+                            }
+                        }
+                        if ( !empty( $tags ) ) {
+                            $updates[$field['id']]['values'] = $tags;
+                        }
                     }
                     break;
 

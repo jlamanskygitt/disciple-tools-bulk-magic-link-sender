@@ -359,7 +359,9 @@ class Disciple_Tools_Magic_Links_Layout_List_Detail {
                     ];
 
                     $options = [];
-                    $options['static_options'] = true;
+                    if ( $post_field_settings[$field['id']]['type'] === 'tags' ) {
+                        $options['static_options'] = true;
+                    }
 
                     if ( function_exists( 'render_field_for_display' ) ) {
                         render_field_for_display( $field['id'], $post_field_settings, $empty_post, null, null, null, $options );

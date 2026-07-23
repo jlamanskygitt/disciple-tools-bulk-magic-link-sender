@@ -905,7 +905,9 @@ class Disciple_Tools_Magic_Links_Template_Single_Record extends DT_Magic_Url_Bas
                                         case 'dt':
 
                                             $options = [];
-                                            $options['static_options'] = true;
+                                            if ( $this->post_field_settings[$field['id']]['type'] === 'tags' ) {
+                                                $options['static_options'] = true;
+                                            }
 
                                             // Capture rendered field html
                                             ob_start();
